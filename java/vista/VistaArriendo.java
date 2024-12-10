@@ -11,13 +11,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import modelo.Arriendo;
 
 public class VistaArriendo extends JFrame {
 
     private JComboBox<Cliente> cmbClientes;
     private JComboBox<Vehiculo> cmbVehiculos;
     private JFormattedTextField txtFecha;
-    private JTextField txtDias, txtPrecioDia, txtCuotas;
+    private JTextField txtDias, txtPrecioDia, txtMontoTotal, txtCuotas;
     private JTable tablaCuotas;
     private JButton btnGuardarArriendo, btnNuevoCliente, btnPagarPrimeraCuota;
     private List<Cliente> clientes;
@@ -33,9 +36,9 @@ public class VistaArriendo extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("Sistema de Gestión de Arriendos");
+        setTitle("Registrar Arriendo");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1000, 800);
         setLayout(null);
 
         JLabel lblTitulo = new JLabel("Arriendos con Cuotas");
@@ -51,7 +54,7 @@ public class VistaArriendo extends JFrame {
         cmbClientes.setBounds(200, 70, 200, 30);
         add(cmbClientes);
 
-        btnNuevoCliente = new JButton("Ingresar Nuevo Cliente");
+        JButton btnNuevoCliente = new JButton("Ingresar Nuevo Cliente");
         btnNuevoCliente.setBounds(450, 70, 200, 30);
         add(btnNuevoCliente);
         btnNuevoCliente.addActionListener(this::ingresarNuevoCliente);
@@ -70,7 +73,7 @@ public class VistaArriendo extends JFrame {
 
         txtFecha = new JFormattedTextField(new SimpleDateFormat("dd-MM-yyyy"));
         txtFecha.setBounds(200, 170, 200, 30);
-        txtFecha.setValue(new Date()); // Establece la fecha actual como predeterminada
+        txtFecha.setValue(new Date()); // Fecha predeterminada: hoy
         add(txtFecha);
 
         JLabel lblDias = new JLabel("Días:");
@@ -89,33 +92,79 @@ public class VistaArriendo extends JFrame {
         txtPrecioDia.setBounds(200, 270, 200, 30);
         add(txtPrecioDia);
 
+        JLabel lblMontoTotal = new JLabel("Monto Total:");
+        lblMontoTotal.setBounds(30, 320, 150, 30);
+        add(lblMontoTotal);
+
+        txtMontoTotal = new JTextField();
+        txtMontoTotal.setBounds(200, 320, 200, 30);
+        txtMontoTotal.setEditable(false); // Campo no editable
+        add(txtMontoTotal);
+
         JLabel lblCuotas = new JLabel("Cantidad de Cuotas:");
-        lblCuotas.setBounds(30, 320, 150, 30);
+        lblCuotas.setBounds(30, 370, 150, 30);
         add(lblCuotas);
 
         txtCuotas = new JTextField();
-        txtCuotas.setBounds(200, 320, 200, 30);
+        txtCuotas.setBounds(200, 370, 200, 30);
         add(txtCuotas);
 
-        btnGuardarArriendo = new JButton("Guardar Arriendo y Mostrar Cuotas");
-        btnGuardarArriendo.setBounds(450, 320, 250, 30);
+        JButton btnGuardarArriendo = new JButton("Guardar Arriendo y Mostrar Cuotas");
+        btnGuardarArriendo.setBounds(450, 370, 250, 30);
         add(btnGuardarArriendo);
         btnGuardarArriendo.addActionListener(this::guardarArriendoYmostrarCuotas);
+
+        JLabel lblTablaCuotas = new JLabel("Cuotas Generadas:");
+        lblTablaCuotas.setBounds(30, 420, 150, 30);
+        add(lblTablaCuotas);
 
         tablaCuotas = new JTable(new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"Número", "Valor", "¿Pagada?"}
         ));
         JScrollPane scrollTabla = new JScrollPane(tablaCuotas);
-        scrollTabla.setBounds(200, 370, 400, 200);
+        scrollTabla.setBounds(200, 420, 400, 150);
         add(scrollTabla);
 
-        btnPagarPrimeraCuota = new JButton("Pagar Primera Cuota");
-        btnPagarPrimeraCuota.setBounds(450, 580, 200, 30);
+        JButton btnPagarPrimeraCuota = new JButton("Pagar Primera Cuota");
+        btnPagarPrimeraCuota.setBounds(600, 540, 200, 30);
         add(btnPagarPrimeraCuota);
         btnPagarPrimeraCuota.addActionListener(this::pagarPrimeraCuota);
 
+        JButton btnPagarCuotas = new JButton("Ir a Pagar Cuotas");
+        btnPagarCuotas.setBounds(600, 500, 200, 30); // Posicionado debajo de los botones existentes
+        add(btnPagarCuotas);
+        btnPagarCuotas.addActionListener(e -> new VistaPagarCuotas(clientes, arriendos).setVisible(true));
+
+        // Listeners para actualizar monto total automáticamente
+        txtDias.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                actualizarMontoTotal();
+            }
+        });
+
+        txtPrecioDia.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                actualizarMontoTotal();
+            }
+        });
+
         setLocationRelativeTo(null);
+    }
+
+    private void actualizarMontoTotal() {
+        try {
+            int dias = Integer.parseInt(txtDias.getText());
+            double precioDia = Double.parseDouble(txtPrecioDia.getText());
+
+            // Crear una instancia temporal de Arriendo para calcular el monto total
+            Arriendo arriendo = new Arriendo(dias, precioDia);
+            int montoTotal = arriendo.obtenerMontoAPagar();
+
+            txtMontoTotal.setText("$" + montoTotal);
+        } catch (NumberFormatException ex) {
+            txtMontoTotal.setText("$0");
+        }
     }
 
     private List<Vehiculo> inicializarVehiculos() {

@@ -1,41 +1,32 @@
 package modelo;
 
-import java.io.Serializable;
-
-public class Arriendo implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private int numArriendo;
-    private String fecArr;
+public class Arriendo {
     private int diasArriendo;
+    private double precioDia;
 
-    public Arriendo(int numArriendo, String fecArr, int diasArriendo) {
-        this.numArriendo = numArriendo;
-        this.fecArr = fecArr;
+    public Arriendo(int diasArriendo, double precioDia) {
         this.diasArriendo = diasArriendo;
-    }
-
-    public int obtenerMontoApagar(int precioDia) {
-        return diasArriendo * precioDia;
-    }
-
-    public boolean evaluarArriendo(Cliente cliente, Vehiculo vehiculo) {
-        return cliente.isVigente() && vehiculo.getCondicion() == 'D';
-    }
-
-    public int getNumArriendo() {
-        return numArriendo;
-    }
-
-    public String getFecArr() {
-        return fecArr;
+        this.precioDia = precioDia;
     }
 
     public int getDiasArriendo() {
         return diasArriendo;
     }
 
-    @Override
-    public String toString() {
-        return "Arriendo #" + numArriendo + " - Fecha: " + fecArr;
+    public void setDiasArriendo(int diasArriendo) {
+        this.diasArriendo = diasArriendo;
+    }
+
+    public double getPrecioDia() {
+        return precioDia;
+    }
+
+    public void setPrecioDia(double precioDia) {
+        this.precioDia = precioDia;
+    }
+
+    public int obtenerMontoAPagar() {
+        return (int) (diasArriendo * precioDia);
     }
 }
+
